@@ -7,7 +7,7 @@ This repository is a R-Tensorflow implementation of [Latent Diffusion](https://a
 3. This model is a **unconditional** generative model.
 4. Regarding the sampler, we only implemented DDIM.
 <div align="left">
-  <img src="./assets/ddim.png" width = '709px' height = '405px'>
+  <img src="./assets/DDIM.png" width = '709px' height = '405px'>
 </div> (Source: https://github.com/taki0112/Diffusion-Tensorflow)
 
 ## Training set and results
