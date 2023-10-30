@@ -3,7 +3,7 @@ This repository is a R-Tensorflow implementation of [Latent Diffusion](https://a
 
 ## Detail
 1. AutoEncoder is KL-VAE with the KL regularized loss and VGG19-based perceptual loss. VAE is used to compress images from pixel space to latent space. After the Encoder in VAE, the image resolution will be reduced by a factor of 4 (256x256 -> 64x64).
-2. UNET consists of a series ofconvolutional residual block and Transformer encoder block (Self-Attention) with 170M parameters.
+2. UNET consists of a series of convolutional residual block and Transformer encoder block (Self-Attention) with 170M parameters.
 3. This model is a **unconditional** generative model.
 4. Regarding the sampler, we only implemented DDIM.
 <div align="left">
