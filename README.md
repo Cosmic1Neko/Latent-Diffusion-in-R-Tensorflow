@@ -11,7 +11,7 @@ This repository is a R-Tensorflow implementation of [Latent Diffusion](https://a
 </div> (Source: https://github.com/taki0112/Diffusion-Tensorflow)
 
 ## Training set and results
-- We train model with 140k images from Dannbooru. Some images from it:
+- I train model with 140k images from Dannbooru. Some images from it:
 <div align="left">
   <img src="./assets/train_image/train (1).jpg" width = '256px' height = '256px'>
   <img src="./assets/train_image/train (2).jpg" width = '256px' height = '256px'>
