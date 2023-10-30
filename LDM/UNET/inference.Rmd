@@ -13,9 +13,9 @@ tf$config$set_logical_device_configuration(physical_gpus[[1]], list(tf$config$Lo
 Hyperparameterers
 ```{r}
 # data
-VAE_dir = "./LDM/AutoEncoder/VAE-f4"
+VAE_dir = "../AutoEncoder/VAE-f4"
 checkpoint_dir = NULL
-UNET_dir = "./LDM/UNET/ema_unet(Epoch 50)"
+UNET_dir = "../UNET/ema_unet(Epoch 50)"
 image_size = 256L
 latent_size = image_size %/% 4L
 scale_factor = 0.14581
