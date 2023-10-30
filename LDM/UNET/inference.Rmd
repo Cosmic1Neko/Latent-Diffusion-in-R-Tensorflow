@@ -1,0 +1,133 @@
+```{r}
+library(keras)
+library(tensorflow)
+packageVersion("tensorflow")
+library(tfdatasets)
+library(abind)
+library(EBImage)
+library(progress)
+physical_gpus = tf$config$list_physical_devices('GPU')
+tf$config$set_logical_device_configuration(physical_gpus[[1]], list(tf$config$LogicalDeviceConfiguration(memory_limit=3966)))
+```
+
+Hyperparameterers
+```{r}
+# data
+VAE_dir = "./LDM/AutoEncoder/VAE-f4"
+checkpoint_dir = NULL
+UNET_dir = "./LDM/UNET/ema_unet(Epoch 50)"
+image_size = 256L
+latent_size = image_size %/% 4L
+scale_factor = 0.14581
+
+# diffusion algorithmic
+diffusion_type = "discrete" # "discrete" or "continuous"
+diffusion_schedule = "cosine" # "linear" or "cosine"
+# linear schedule in the discrete model
+beta_start = 0.00085
+beta_end = 0.0120
+# cosine schedule in the discrete and continuous model
+alphas_cumprod_start = 0.999
+alphas_cumprod_end = 0.001 # should be set relatively large to avoid extreme values during sampling.
+timesteps = 1000L
+noise_offset = 0.0
+use_ema = T
+
+# architecture, should be consistent with the loaded model
+embedding_dims = 160
+widths = c(160, 320, 640) # 64x64, 32x32, 16x16
+has_attention = c(FALSE, TRUE, TRUE)
+num_TransBlock = c(NA, 2, 5)
+num_res_blocks = 2
+dropout_rate = 0.0
+use_conv = T
+
+mixed_precision = TRUE
+```
+
+```{r}
+if (mixed_precision){
+  tf$keras$mixed_precision$set_global_policy("mixed_float16")
+}
+
+# load VAE 
+VAE <- load_model_tf(VAE_dir)
+Encoder <- VAE$get_layer("encoder")
+Decoder <- VAE$get_layer("decoder")
+Encoder$trainable <- FALSE
+Decoder$trainable <- FALSE
+rm(VAE);gc()
+
+# load U-Net
+source("dataset.R")
+if (diffusion_type == "continuous"){
+  source("continuous_model.R")
+} else if (diffusion_type == "discrete"){
+  source("discrete_model.R")
+}
+
+if (!is.null(checkpoint_dir)){
+  source("architecture.R")
+  model <- DiffusionModel(UNET = get_UNET(),
+                          EMA_UNET = get_UNET(),
+                          Encoder = Encoder,
+                          Decoder = Decoder)
+  model$load_weights(checkpoint_dir)
+  model$UNET <- NULL; gc() 
+} else{
+  model <- DiffusionModel(UNET = NULL, 
+                          EMA_UNET = load_model_tf(UNET_dir),
+                          Encoder = Encoder,
+                          Decoder = Decoder)
+  gc() 
+}
+```
+
+
+
+Generate images
+```{r}
+# continuous model
+model$plot_images(num_images = 1L, 
+                  diffusion_steps = 20, 
+                  stochasticity = 0.0,
+                  variance_preserving = FALSE)
+```
+
+```{r}
+# discrete model
+model$generate(num_images = 1L,
+               diffusion_steps =200,
+               eta = 1.0) %>% 
+  as.array() %>% 
+  {.[1,,,]} %>% 
+  EBImage::Image(colormode = "Color") %>% 
+  EBImage::transpose() %>% 
+  EBImage::normalize() %>% 
+  plot()
+```
+
+img2img
+```{r}
+img <- load_image("/mnt/c/Users/22877/Desktop/test.png")
+model$img2img(tf$expand_dims(img, 0L), 
+              diffusion_steps = 20,
+              denoising_strength = 0.7, 
+              eta = 0.0) %>% 
+  as.array() %>% 
+  {.[1,,,]} %>% 
+  EBImage::Image(colormode = "Color") %>% 
+  EBImage::transpose() %>% 
+  EBImage::normalize() %>% 
+  plot()
+```
+
+
+
+
+
+
+
+
+
+
