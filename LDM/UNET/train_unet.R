@@ -53,6 +53,7 @@ packageVersion("tensorflow")
 library(tfdatasets)
 library(abind)
 library(EBImage)
+library(progress)
 #physical_gpus = tf$config$list_physical_devices('GPU')
 #tf$config$set_logical_device_configuration(physical_gpus[[1]], list(tf$config$LogicalDeviceConfiguration(memory_limit=3966)))
 
